@@ -222,7 +222,7 @@ const LoadCreationForm = ({
       <Button
         variant="outline"
         size="sm"
-        className="bg-blue-100 hover:bg-blue-200"
+        className="bg-primary/10 hover:bg-primary/20"
       >
         lbs
       </Button>
@@ -248,7 +248,7 @@ const LoadCreationForm = ({
   );
 
   return (
-    <Card className="w-full max-w-4xl mx-auto bg-white">
+    <Card className="w-full max-w-4xl mx-auto bg-background">
       <CardHeader>
         <CardTitle className="text-xl font-bold">Create Load Card</CardTitle>
         <CardDescription>
@@ -365,7 +365,7 @@ const LoadCreationForm = ({
                     <Plus className="h-3 w-3 mr-1" /> add email
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-muted-foreground mb-2">
                   no selected dispatchers
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -522,8 +522,7 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>TIME ZONE *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <Select
                       value={formData.pickupTimeZone}
                       onValueChange={(value) =>
@@ -544,10 +543,9 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>DATE FROM *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Calendar className="h-4 w-4 text-gray-500" />
                       </div>
                       <DatePicker
@@ -559,10 +557,9 @@ const LoadCreationForm = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>TIME FROM *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Clock className="h-4 w-4 text-gray-500" />
                       </div>
                       <Input
@@ -577,10 +574,9 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>DATE TO *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Calendar className="h-4 w-4 text-gray-500" />
                       </div>
                       <DatePicker
@@ -592,10 +588,9 @@ const LoadCreationForm = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>TIME TO *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Clock className="h-4 w-4 text-gray-500" />
                       </div>
                       <Input
@@ -792,8 +787,7 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>TIME ZONE *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <Select
                       value={formData.deliveryTimeZone}
                       onValueChange={(value) =>
@@ -814,10 +808,9 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>DATE FROM *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Calendar className="h-4 w-4 text-gray-500" />
                       </div>
                       <DatePicker
@@ -831,10 +824,9 @@ const LoadCreationForm = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>TIME FROM *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Clock className="h-4 w-4 text-gray-500" />
                       </div>
                       <Input
@@ -849,10 +841,9 @@ const LoadCreationForm = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>DATE TO *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Calendar className="h-4 w-4 text-gray-500" />
                       </div>
                       <DatePicker
@@ -866,10 +857,9 @@ const LoadCreationForm = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>TIME TO *</Label>
+                  <div className="px-3 py-2 bg-muted border-r">
                     <div className="flex items-center border rounded-md">
-                      <div className="px-3 py-2 bg-gray-100 border-r">
+                      <div className="px-3 py-2 bg-muted border-r">
                         <Clock className="h-4 w-4 text-gray-500" />
                       </div>
                       <Input
@@ -984,9 +974,9 @@ const LoadCreationForm = ({
           <TabsContent value="step-3" className="space-y-6 mt-6">
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Upload Documents</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
+              <div className="border-2 border-dashed border-border rounded-md p-6 text-center">
                 <div className="flex flex-col items-center">
-                  <p className="text-sm text-gray-500 mb-2">
+                  <p className="text-sm text-muted-foreground mb-2">
                     Drag and drop files here, or click to select files
                   </p>
                   <Button variant="outline" size="sm">

@@ -174,16 +174,16 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-teal-600 hover:bg-teal-700">
+        <Button className="bg-primary hover:bg-primary/90">
           Create New Dispatch
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-background">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-800">
+          <DialogTitle className="text-xl font-bold">
             Create New Dispatch
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-muted-foreground">
             Fill in the details to create a new dispatch task.
           </DialogDescription>
         </DialogHeader>
@@ -207,7 +207,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                 className="space-y-6"
               >
                 <div className="flex items-center space-x-4 mb-4">
-                  <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                     1
                   </div>
                   <h3 className="text-lg font-medium">General Information</h3>
@@ -258,7 +258,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                         <FormLabel>Origin</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                               className="pl-8"
                               placeholder="Enter origin location"
@@ -279,7 +279,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                         <FormLabel>Destination</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                               className="pl-8"
                               placeholder="Enter destination location"
@@ -303,7 +303,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                   </Button>
                   <Button
                     type="submit"
-                    className="bg-teal-600 hover:bg-teal-700"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     Create Dispatch
                   </Button>

@@ -155,7 +155,7 @@ const TruckFilterPanel: React.FC<TruckFilterPanelProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-md border shadow-sm mb-6">
+    <div className="bg-background rounded-md border shadow-sm mb-6">
       <div
         className="p-4 flex items-center justify-between cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
