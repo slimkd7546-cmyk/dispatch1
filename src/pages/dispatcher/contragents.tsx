@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import ThemeAwareDashboardLayout from "@/components/layout/ThemeAwareDashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -196,7 +196,7 @@ const ContragentsPage = () => {
   };
 
   return (
-    <DashboardLayout>
+    <ThemeAwareDashboardLayout pageTitle="Contragents">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Contragents</h1>
@@ -526,7 +526,7 @@ const ContragentsPage = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </ThemeAwareDashboardLayout>
   );
 };
 

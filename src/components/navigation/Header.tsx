@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, memo } from "react";
+import useDebounce from "@/hooks/useDebounce";
+import { cn } from "@/lib/utils";
 import {
   Search,
   Bell,
@@ -9,7 +11,10 @@ import {
   HelpCircle,
   Sun,
   Moon,
+  MessageSquare,
 } from "lucide-react";
+import MessageIndicator from "@/components/messaging/MessageIndicator";
+import ChatButton from "@/components/messaging/ChatButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +38,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTheme } from "@/components/ui/theme-provider";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import { useAuthContext, AuthProvider } from "@/context/AuthContext";
 
 interface HeaderProps {
   title?: string;
@@ -41,16 +46,30 @@ interface HeaderProps {
   userRole?: "Admin" | "Dispatcher" | "Officer" | "Reviewer";
   userName?: string;
   userAvatar?: string;
+  onToggleMessaging?: () => void;
+  messagingPanelOpen?: boolean;
 }
 
-const Header = ({
+const HeaderContent = ({
   title = "Dashboard",
   onMenuToggle = () => {},
   userRole = "Dispatcher",
   userName = "Jane Doe",
   userAvatar = "",
+  onToggleMessaging = () => {},
+  messagingPanelOpen = false,
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { logout } = useAuthContext();
+
+  // Memoize event handlers
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [],
+  );
   const { theme, setTheme } = useTheme();
 
   // Get initials for avatar fallback
@@ -166,117 +185,147 @@ const Header = ({
   };
 
   return (
-    <ThemeProvider defaultTheme="system" enableSystem>
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 lg:px-6">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onMenuToggle}
-            className="md:hidden"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background/95 backdrop-blur-sm px-4 lg:px-6 shadow-sm">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuToggle}
+          className="md:hidden hover:bg-muted/80 transition-colors"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
 
-          <h1 className="text-xl font-semibold">{title}</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+      </div>
+
+      <div className="flex flex-1 items-center justify-end gap-4 md:justify-between">
+        <div className="hidden md:flex md:w-full md:max-w-sm">
+          <div className="relative w-full">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="w-full pl-8 transition-all focus-visible:ring-teal-500 border-muted/60"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
         </div>
 
-        <div className="flex flex-1 items-center justify-end gap-4 md:justify-between">
-          <div className="hidden md:flex md:w-full md:max-w-sm">
-            <div className="relative w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative"
-                    aria-label="Search"
-                  >
-                    <Search className="h-5 w-5 md:hidden" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">Search</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <NotificationCenter />
-
-            <ThemeToggle />
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+        <div className="flex items-center gap-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative"
+                  aria-label="Search"
                 >
-                  <Avatar className="h-8 w-8">
-                    {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={userName} />
-                    ) : (
-                      <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-                    )}
-                  </Avatar>
+                  <Search className="h-5 w-5 md:hidden" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {userName}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {userRole}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Help</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => {
-                    // Clear authentication
-                    localStorage.removeItem("isAuthenticated");
-                    localStorage.removeItem("userRole");
-                    window.location.href = "/";
-                  }}
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Search</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <NotificationCenter />
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "relative",
+                    messagingPanelOpen && "bg-muted text-primary",
+                  )}
+                  aria-label="Messages"
+                  onClick={onToggleMessaging}
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  <MessageSquare className="h-5 w-5" />
+                  <MessageIndicator className="absolute -top-1 -right-1" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {messagingPanelOpen ? "Close Messages" : "Open Messages"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <ThemeToggle />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-8 w-8 rounded-full"
+              >
+                <Avatar className="h-8 w-8">
+                  {userAvatar ? (
+                    <AvatarImage src={userAvatar} alt={userName} />
+                  ) : (
+                    <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+                  )}
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {userRole}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>Help</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => {
+                  // Clear authentication
+                  localStorage.removeItem("isAuthenticated");
+                  localStorage.removeItem("userRole");
+                  logout();
+                  window.location.href = "/";
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </header>
-    </ThemeProvider>
+      </div>
+    </header>
   );
 };
 
-export default Header;
+const MemoizedHeaderContent = memo(HeaderContent);
+
+const Header = (props: HeaderProps) => {
+  return (
+    <AuthProvider>
+      <MemoizedHeaderContent {...props} />
+    </AuthProvider>
+  );
+};
+
+export default memo(Header);

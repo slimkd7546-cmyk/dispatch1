@@ -1,5 +1,5 @@
-import React from "react";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import React, { useState } from "react";
+import ThemeAwareDashboardLayout from "@/components/layout/ThemeAwareDashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,12 @@ import {
   Plus,
   FileText,
 } from "lucide-react";
+import CreateDispatchModal from "@/components/dispatch/CreateDispatchModal";
 
 const LoadsPage = () => {
+  // State for modal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   // Mock loads data
   const activeLoads = [
     {
@@ -141,12 +145,19 @@ const LoadsPage = () => {
     }
   };
 
+  // Handle new load creation
+  const handleCreateLoad = (data: any) => {
+    console.log("New load created:", data);
+    // In a real app, this would send the data to the server
+    setIsCreateModalOpen(false);
+  };
+
   return (
-    <DashboardLayout>
-      <div className="p-6">
+    <ThemeAwareDashboardLayout pageTitle="Load Management">
+      <div className="w-full h-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Load Management</h1>
-          <Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Create New Load
           </Button>
@@ -360,8 +371,15 @@ const LoadsPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Create Dispatch Modal */}
+        <CreateDispatchModal
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onSubmit={handleCreateLoad}
+        />
       </div>
-    </DashboardLayout>
+    </ThemeAwareDashboardLayout>
   );
 };
 

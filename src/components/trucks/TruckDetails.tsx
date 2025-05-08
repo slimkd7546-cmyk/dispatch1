@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -184,4 +184,4 @@ const TruckDetails: React.FC<TruckDetailsProps> = ({
   );
 };
 
-export default TruckDetails;
+export default memo(TruckDetails);

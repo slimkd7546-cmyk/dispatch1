@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "@/context/AuthContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import DispatcherDashboard from "@/components/dashboard/DispatcherDashboard";
@@ -7,7 +8,6 @@ import OfficerDashboard from "@/components/dashboard/OfficerDashboard";
 import ReviewerDashboard from "@/components/dashboard/ReviewerDashboard";
 import ConnectDashboard from "@/components/dashboard/ConnectDashboard";
 import DriverDashboard from "@/components/dashboard/DriverDashboard";
-import { ThemeProvider } from "@/components/ui/theme-provider";
 
 interface DashboardPageProps {
   userRole?:
@@ -85,15 +85,15 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   };
 
   return (
-    <ThemeProvider defaultTheme="system" enableSystem>
-      <DashboardLayout
-        userRole={currentRole}
-        userName={userName}
-        userAvatar={userAvatar}
-        pageTitle={getPageTitle()}
-      >
-        {/* Role switcher for demo purposes */}
-        <div className="mb-6 p-4 bg-muted/30 rounded-lg border border-dashed">
+    <DashboardLayout
+      userRole={currentRole}
+      userName={userName}
+      userAvatar={userAvatar}
+      pageTitle={getPageTitle()}
+    >
+      {/* Role switcher for demo purposes */}
+      <div className="w-full h-full">
+        <div className="mb-4 bg-muted/30 p-3 rounded-md">
           <p className="text-sm text-muted-foreground mb-2">
             Demo Mode: Switch between different user roles
           </p>
@@ -139,8 +139,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
         {/* Render the appropriate dashboard based on role */}
         {renderDashboard()}
-      </DashboardLayout>
-    </ThemeProvider>
+      </div>
+    </DashboardLayout>
   );
 };
 

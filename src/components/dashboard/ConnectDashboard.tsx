@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -26,23 +26,23 @@ const ConnectDashboard = () => {
   const navigate = useNavigate();
   const [showSupportModal, setShowSupportModal] = useState(false);
 
-  // Handle view map
-  const handleViewMap = () => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleViewMap = useCallback(() => {
     navigate("/map");
-  };
+  }, [navigate]);
 
   // Handle reports
-  const handleReports = () => {
+  const handleReports = useCallback(() => {
     navigate("/reports");
-  };
+  }, [navigate]);
 
   // Handle support request
-  const handleSupportRequest = () => {
+  const handleSupportRequest = useCallback(() => {
     setShowSupportModal(true);
-  };
+  }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full h-full p-6 bg-background overflow-auto">
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -660,4 +660,4 @@ const ConnectDashboard = () => {
   );
 };
 
-export default ConnectDashboard;
+export default memo(ConnectDashboard);

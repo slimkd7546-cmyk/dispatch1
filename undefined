@@ -1,0 +1,5 @@
+import ThemeAwareComponentsShowcase from "../storyboards/theme-aware-components";
+
+export default function ThemeAwareComponentsStoryboard() {
+  return <ThemeAwareComponentsShowcase />;
+}

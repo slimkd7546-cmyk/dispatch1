@@ -39,6 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LoadCreationForm from "./LoadCreationForm";
 
 // Form schema validation
 const formSchema = z.object({
@@ -69,7 +71,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateDispatchModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSubmit?: (data: FormValues) => void;
+  onSubmit?: (data: FormValues | any) => void;
 }
 
 const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
@@ -78,6 +80,7 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
   onSubmit = () => {},
 }) => {
   const [selectedOfficers, setSelectedOfficers] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<"simple" | "advanced">("simple");
 
   // Mock data for officers
   const availableOfficers = [
@@ -124,6 +127,25 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
     console.log("Dispatch created:", data);
   };
 
+  const handleLoadFormSubmit = (loadData: any) => {
+    // Transform load data to dispatch data format if needed
+    const dispatchData = {
+      ...loadData,
+      title: loadData.commodity || "New Load",
+      origin: loadData.pickupFacility || "",
+      destination: loadData.deliveryFacility || "",
+      weight: loadData.weight || "",
+      vehicleType: loadData.truckType || "Box truck",
+      description: loadData.generalNote || "",
+      priority: "medium",
+      status: "pending",
+    };
+
+    onSubmit(dispatchData);
+    onOpenChange(false);
+    console.log("Load created as dispatch:", dispatchData);
+  };
+
   const toggleOfficerSelection = (officerId: string) => {
     setSelectedOfficers((prev) => {
       if (prev.includes(officerId)) {
@@ -145,6 +167,10 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
     }
   };
 
+  const handleCancel = () => {
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -162,325 +188,137 @@ const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
-                1
-              </div>
-              <h3 className="text-lg font-medium">General Information</h3>
-            </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            setActiveTab(value as "simple" | "advanced")
+          }
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="simple">Simple Form</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced Load Form</TabsTrigger>
+          </TabsList>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dispatch Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter dispatch title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="reference"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Reference #</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter reference number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="origin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Origin</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                        <Input
-                          className="pl-8"
-                          placeholder="Enter origin location"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="destination"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Destination</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                        <Input
-                          className="pl-8"
-                          placeholder="Enter destination location"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="pickupTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pickup Time</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Clock className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                        <Input
-                          type="datetime-local"
-                          className="pl-8"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="deliveryTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery Time</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Clock className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                        <Input
-                          type="datetime-local"
-                          className="pl-8"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="vehicleType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vehicle Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <div className="relative">
-                          <Truck className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                          <SelectTrigger className="pl-8">
-                            <SelectValue placeholder="Select vehicle type" />
-                          </SelectTrigger>
-                        </div>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Box truck">Box truck</SelectItem>
-                        <SelectItem value="Cargo van">Cargo van</SelectItem>
-                        <SelectItem value="Flatbed">Flatbed</SelectItem>
-                        <SelectItem value="Refrigerated truck">
-                          Refrigerated truck
-                        </SelectItem>
-                        <SelectItem value="Tanker">Tanker</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Weight (lbs)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter weight"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="distance"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Distance (miles)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter distance"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority Level</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <div className="relative">
-                          <AlertTriangle className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                          <SelectTrigger className="pl-8">
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                        </div>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="low" className="text-green-600">
-                          Low
-                        </SelectItem>
-                        <SelectItem value="medium" className="text-yellow-600">
-                          Medium
-                        </SelectItem>
-                        <SelectItem value="high" className="text-orange-600">
-                          High
-                        </SelectItem>
-                        <SelectItem value="critical" className="text-red-600">
-                          Critical
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Provide detailed information about the dispatch"
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex items-center space-x-4 mt-8 mb-4">
-              <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
-                2
-              </div>
-              <h3 className="text-lg font-medium">Assignment</h3>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="assignedOfficers"
-              render={() => (
-                <FormItem>
-                  <FormLabel>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>Assign Officers</span>
-                    </div>
-                  </FormLabel>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {availableOfficers.map((officer) => (
-                      <div
-                        key={officer.id}
-                        onClick={() => toggleOfficerSelection(officer.id)}
-                        className={`
-                          flex items-center p-2 rounded-md cursor-pointer border
-                          ${
-                            selectedOfficers.includes(officer.id)
-                              ? "bg-teal-100 border-teal-500"
-                              : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                          }
-                        `}
-                      >
-                        <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
-                          {officer.name.charAt(0)}
-                        </div>
-                        <span className="text-sm">{officer.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {form.formState.errors.assignedOfficers && (
-                    <p className="text-[0.8rem] font-medium text-destructive mt-1">
-                      {form.formState.errors.assignedOfficers.message}
-                    </p>
-                  )}
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
+          <TabsContent value="simple">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-6"
               >
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-teal-600 hover:bg-teal-700">
-                Create Dispatch
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center">
+                    1
+                  </div>
+                  <h3 className="text-lg font-medium">General Information</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dispatch Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter dispatch title"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="reference"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Reference #</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter reference number"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="origin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Origin</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                            <Input
+                              className="pl-8"
+                              placeholder="Enter origin location"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destination</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                            <Input
+                              className="pl-8"
+                              placeholder="Enter destination location"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-teal-600 hover:bg-teal-700"
+                  >
+                    Create Dispatch
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </TabsContent>
+
+          <TabsContent value="advanced">
+            <LoadCreationForm
+              onSubmit={handleLoadFormSubmit}
+              onCancel={handleCancel}
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import ThemeAwareDashboardLayout from "@/components/layout/ThemeAwareDashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -126,7 +126,7 @@ const TripMonitorPage = () => {
   };
 
   return (
-    <DashboardLayout>
+    <ThemeAwareDashboardLayout pageTitle="Trip Monitor">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Trip Monitor</h1>
@@ -398,7 +398,7 @@ const TripMonitorPage = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </ThemeAwareDashboardLayout>
   );
 };
 

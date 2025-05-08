@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DataCard } from "@/components/ui/data-card";
 
 interface AdminDashboardProps {
   analytics?: {
@@ -75,7 +76,7 @@ const AdminDashboard = ({
   ],
 }: AdminDashboardProps) => {
   return (
-    <div className="w-full h-full p-6 bg-background">
+    <div className="w-full h-full bg-background overflow-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-primary">Admin Dashboard</h1>
         <p className="text-muted-foreground mt-2">
@@ -85,61 +86,45 @@ const AdminDashboard = ({
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Total Users</CardTitle>
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analytics.totalUsers}</div>
-            <CardDescription className="mt-2">Across all roles</CardDescription>
-          </CardContent>
-        </Card>
+        <DataCard
+          title="Total Users"
+          value={analytics.totalUsers}
+          icon={<Users className="h-5 w-5" />}
+          description="Across all roles"
+          animation="fade"
+          delay={0.1}
+          iconClassName="text-primary"
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Active Dispatches</CardTitle>
-              <Activity className="h-5 w-5 text-teal-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {analytics.activeDispatches}
-            </div>
-            <CardDescription className="mt-2">
-              Currently in progress
-            </CardDescription>
-          </CardContent>
-        </Card>
+        <DataCard
+          title="Active Dispatches"
+          value={analytics.activeDispatches}
+          icon={<Activity className="h-5 w-5" />}
+          description="Currently in progress"
+          animation="fade"
+          delay={0.2}
+          iconClassName="text-teal-500"
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Completed Tasks</CardTitle>
-              <Clock className="h-5 w-5 text-green-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analytics.completedTasks}</div>
-            <CardDescription className="mt-2">Last 30 days</CardDescription>
-          </CardContent>
-        </Card>
+        <DataCard
+          title="Completed Tasks"
+          value={analytics.completedTasks}
+          icon={<Clock className="h-5 w-5" />}
+          description="Last 30 days"
+          animation="fade"
+          delay={0.3}
+          iconClassName="text-green-500"
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">System Uptime</CardTitle>
-              <Shield className="h-5 w-5 text-blue-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{analytics.systemUptime}</div>
-            <CardDescription className="mt-2">Last 7 days</CardDescription>
-          </CardContent>
-        </Card>
+        <DataCard
+          title="System Uptime"
+          value={analytics.systemUptime}
+          icon={<Shield className="h-5 w-5" />}
+          description="Last 7 days"
+          animation="fade"
+          delay={0.4}
+          iconClassName="text-blue-500"
+        />
       </div>
 
       {/* Main Content Area */}
@@ -174,7 +159,7 @@ const AdminDashboard = ({
             <CardDescription>Latest system events</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6 w-full h-full">
               {recentActivity.map((activity) => (
                 <div
                   key={activity.id}
@@ -214,64 +199,8 @@ const AdminDashboard = ({
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Access Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <Card
-          className="hover:bg-accent/50 cursor-pointer transition-colors"
-          onClick={() => (window.location.href = "/admin/fleet")}
-        >
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 rounded-full bg-green-500/10">
-                <Truck className="h-6 w-6 text-green-500" />
-              </div>
-              <div>
-                <h3 className="font-medium">Fleet & Zones</h3>
-                <p className="text-sm text-muted-foreground">
-                  Manage vehicles and zones
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="hover:bg-accent/50 cursor-pointer transition-colors"
-          onClick={() => (window.location.href = "/admin/alerts")}
-        >
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 rounded-full bg-red-500/10">
-                <AlertTriangle className="h-6 w-6 text-red-500" />
-              </div>
-              <div>
-                <h3 className="font-medium">Alert Settings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure system alerts
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="hover:bg-accent/50 cursor-pointer transition-colors"
-          onClick={() => (window.location.href = "/admin/integrations")}
-        >
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 rounded-full bg-purple-500/10">
-                <Zap className="h-6 w-6 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="font-medium">Integrations</h3>
-                <p className="text-sm text-muted-foreground">
-                  Manage system integrations
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
         <Card
           className="hover:bg-accent/50 cursor-pointer transition-colors"
           onClick={() => (window.location.href = "/admin/users")}

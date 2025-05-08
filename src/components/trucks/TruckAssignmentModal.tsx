@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -44,9 +44,9 @@ const TruckAssignmentModal: React.FC<TruckAssignmentModalProps> = ({
     priority: "medium",
   });
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
   const handleSubmit = () => {
     onAssign({ ...formData, truckId });
@@ -208,4 +208,4 @@ const TruckAssignmentModal: React.FC<TruckAssignmentModalProps> = ({
   );
 };
 
-export default TruckAssignmentModal;
+export default memo(TruckAssignmentModal);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -173,4 +173,4 @@ const AddTruckForm: React.FC<AddTruckFormProps> = ({
   );
 };
 
-export default AddTruckForm;
+export default memo(AddTruckForm);

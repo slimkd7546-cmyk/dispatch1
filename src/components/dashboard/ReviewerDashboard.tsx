@@ -74,7 +74,7 @@ const ReviewerDashboard = ({
   };
 
   return (
-    <div className="flex flex-col space-y-6 p-6 bg-slate-50 min-h-screen">
+    <div className="flex flex-col space-y-6 p-6 bg-slate-50 w-full h-full overflow-auto">
       {/* Welcome header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <motion.div

@@ -82,7 +82,7 @@ const OfficerDashboard = ({
   };
 
   return (
-    <div className="w-full h-full min-h-screen bg-background p-6">
+    <div className="w-full h-full bg-background p-6 overflow-auto">
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
@@ -160,7 +160,7 @@ const OfficerDashboard = ({
           <TabsTrigger value="history">Task History</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 w-full h-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <Card>

@@ -10,7 +10,16 @@ import {
   User,
   Truck,
   ArrowUpDown,
+  Plus,
+  Eye,
+  Edit,
+  Trash,
+  X,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { IconButton } from "@/components/ui/icon-button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -382,11 +391,12 @@ const DispatchList = ({
     <div className="w-full bg-background p-4">
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h2 className="text-2xl font-bold">Dispatches</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Dispatches</h2>
           <Button
             onClick={onCreateDispatch}
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-teal-600 hover:bg-teal-700 transition-colors"
           >
+            <Plus className="mr-2 h-4 w-4" />
             Create New Dispatch
           </Button>
         </div>
@@ -436,13 +446,14 @@ const DispatchList = ({
           </div>
 
           {filteredDispatches.length > 0 ? (
-            filteredDispatches.map((dispatch) => (
+            filteredDispatches.map((dispatch, index) => (
               <div
                 key={dispatch.id}
-                className="px-4 py-3 border-t grid grid-cols-12 gap-2 hover:bg-muted/50"
+                className="px-4 py-3 border-t grid grid-cols-12 gap-2 hover:bg-muted/50 transition-colors animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="col-span-1 flex items-center">
-                  <span className="text-blue-600 font-medium cursor-pointer hover:underline">
+                  <span className="text-blue-600 font-medium cursor-pointer hover:underline transition-colors">
                     {dispatch.id}
                   </span>
                 </div>
@@ -496,7 +507,7 @@ const DispatchList = ({
                 </div>
                 <div className="col-span-2">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center transition-colors">
                       {dispatch.assignedTo.charAt(0)}
                     </div>
                     <span className="text-sm">{dispatch.assignedTo}</span>
@@ -504,49 +515,56 @@ const DispatchList = ({
                 </div>
                 <div className="col-span-2">
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant={getStatusBadgeVariant(dispatch.status)}
-                      className="capitalize"
-                    >
-                      {dispatch.status.replace("-", " ")}
-                    </Badge>
-                    <Badge
-                      variant={getPriorityBadgeVariant(dispatch.priority)}
-                      className="capitalize"
-                    >
-                      {dispatch.priority}
-                    </Badge>
+                    <StatusBadge status={dispatch.status} />
+                    <StatusBadge
+                      status={dispatch.priority}
+                      showDot={false}
+                      className={cn(
+                        dispatch.priority === "high" &&
+                          "bg-red-500/10 text-red-600 hover:bg-red-500/20",
+                        dispatch.priority === "medium" &&
+                          "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
+                        dispatch.priority === "low" &&
+                          "bg-green-500/10 text-green-600 hover:bg-green-500/20",
+                      )}
+                    />
                   </div>
                 </div>
                 <div className="col-span-2 flex items-center justify-end gap-2">
-                  <Button
+                  <IconButton
+                    icon={<Eye className="h-4 w-4" />}
                     variant="outline"
                     size="sm"
+                    tooltip="View details"
                     onClick={() => onViewDispatch(dispatch.id)}
-                  >
-                    View
-                  </Button>
+                  />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
+                      <IconButton
+                        icon={<MoreVertical className="h-4 w-4" />}
+                        variant="ghost"
+                        size="sm"
+                        tooltip="More options"
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={() => onViewDispatch(dispatch.id)}
                       >
+                        <Eye className="h-4 w-4 mr-2" />
                         View Details
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onEditDispatch(dispatch.id)}
                       >
+                        <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDeleteDispatch(dispatch.id)}
                         className="text-destructive"
                       >
+                        <Trash className="h-4 w-4 mr-2" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -555,14 +573,14 @@ const DispatchList = ({
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center p-8 text-center">
-              <Filter className="h-10 w-10 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No dispatches found</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Try adjusting your search or filters to find what you're looking
-                for.
-              </p>
-            </div>
+            <EmptyState
+              icon={<Filter className="h-10 w-10" />}
+              title="No dispatches found"
+              description="Try adjusting your search or filters to find what you're looking for."
+              actionLabel="Clear Filters"
+              actionIcon={<X className="h-4 w-4" />}
+              onAction={() => handleClearFilters()}
+            />
           )}
         </div>
       </div>

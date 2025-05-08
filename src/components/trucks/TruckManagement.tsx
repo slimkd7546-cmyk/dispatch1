@@ -24,7 +24,6 @@ import {
   User,
   MoreVertical,
   Plus,
-  Search,
   Filter,
   RefreshCw,
   Map,
@@ -33,11 +32,12 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import TruckFilterPanel, {
-  TruckFilterGroup,
-} from "@/components/trucks/TruckFilterPanel";
+import TruckFilterPanel from "@/components/trucks/TruckFilterPanel";
 import AddTruckForm from "@/components/trucks/AddTruckForm";
 import TruckDetails from "@/components/trucks/TruckDetails";
+import TruckDataTable, {
+  TruckDataItem,
+} from "@/components/trucks/TruckDataTable";
 
 export interface TruckData {
   id: string;
@@ -59,15 +59,18 @@ interface TruckManagementProps {
   onClose?: () => void;
 }
 
-const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
+export const TruckManagement: React.FC<TruckManagementProps> = ({
+  onClose,
+}) => {
   const [activeTab, setActiveTab] = useState("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddTruckDialog, setShowAddTruckDialog] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState<TruckData | null>(null);
   const [showTruckDetailsDialog, setShowTruckDetailsDialog] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // Filter groups
-  const [statusFilterGroup, setStatusFilterGroup] = useState<TruckFilterGroup>({
+  const [statusFilterGroup, setStatusFilterGroup] = useState<any>({
     id: "status",
     name: "Status",
     options: [
@@ -78,7 +81,7 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
     ],
   });
 
-  const [typeFilterGroup, setTypeFilterGroup] = useState<TruckFilterGroup>({
+  const [typeFilterGroup, setTypeFilterGroup] = useState<any>({
     id: "type",
     name: "Type",
     options: [
@@ -169,12 +172,379 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
     },
   ]);
 
+  // Mock data for Delta Express style truck data
+  const [deltaExpressTrucks, setDeltaExpressTrucks] = useState<TruckDataItem[]>(
+    [
+      {
+        id: "0007",
+        contact: {
+          role: "(crd) ",
+          name: "Scott",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "EN",
+          },
+        },
+        dimensions: {
+          length: 127,
+          width: 53,
+          height: 72,
+          isLong: true,
+          payload: 2500,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "04/22/2025 11:18 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "0008",
+        documentStatus: "expired",
+        contact: {
+          role: "(crd) ",
+          name: "Scott",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "RU",
+          },
+        },
+        dimensions: {
+          length: 96,
+          width: 53,
+          height: 72,
+          isLong: true,
+          payload: 2500,
+        },
+        status: "busy",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "03/27/2025 13:55 EDT",
+        },
+        actions: {
+          canReserve: false,
+        },
+      },
+      {
+        id: "0009",
+        contact: {
+          role: "(crd) ",
+          name: "Scott",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "EN",
+          },
+        },
+        dimensions: {
+          length: 127,
+          width: 53,
+          height: 72,
+          payload: 2500,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "04/18/2025 13:12 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "0010",
+        contact: {
+          role: "(crd) ",
+          name: "Max",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Straight truck",
+          features: ["liftgate", "pallet jack"],
+          flags: {
+            language: "EN",
+          },
+        },
+        dimensions: {
+          length: 288,
+          width: 96,
+          height: 96,
+          payload: 7000,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "04/03/2025 11:44 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "0011",
+        documentStatus: "expired",
+        contact: {
+          role: "(crd) ",
+          name: "Scott",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "EN",
+          },
+        },
+        dimensions: {
+          length: 145,
+          width: 48,
+          height: 72,
+          payload: 3000,
+        },
+        status: "busy",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "02/12/2025 12:50 EDT",
+        },
+        actions: {
+          canReserve: false,
+        },
+      },
+      {
+        id: "0012",
+        documentStatus: "expired",
+        contact: {
+          role: "(crd) ",
+          name: "Max",
+          phone: "+1 (864) 558-5740",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "EN",
+          },
+        },
+        dimensions: {
+          length: 130,
+          width: 52,
+          height: 69,
+          payload: 2500,
+        },
+        status: "busy",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Chicago",
+          state: "IL",
+          zip: "60666",
+          country: "US",
+          datetime: "04/10/2025 10:48 EDT",
+        },
+        actions: {
+          canReserve: false,
+        },
+      },
+      {
+        id: "001Ref-012V",
+        contact: {
+          role: "(o/d) ",
+          name: "Dispatchland",
+          company: "COMPANY NAME",
+          phone: "+1 (112) 121-2121",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "RU",
+            rate: 0.07,
+            rateUnit: "mi",
+          },
+        },
+        dimensions: {
+          length: 1,
+          width: 1,
+          height: 1,
+          payload: 2000,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "unknown",
+          state: "unknown",
+          zip: "unknown",
+          country: "",
+          datetime: "11/18/2024 09:33 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "016",
+        contact: {
+          role: "(o/d) ",
+          name: "Uladzimir Biaheza",
+          phone: "+1 (916) 296-0176",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "RU",
+            rate: 1.09,
+            rateUnit: "mi",
+          },
+        },
+        dimensions: {
+          length: 158,
+          width: 54,
+          height: 68,
+          payload: 3000,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Penn Valley",
+          state: "CA",
+          zip: "95946",
+          country: "US",
+          datetime: "03/07/2025 10:12 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "036",
+        contact: {
+          role: "(o/d) ",
+          name: "Sergey Lutsik",
+          phone: "+1 (916) 837-4577",
+        },
+        info: {
+          type: "Cargo van",
+          flags: {
+            language: "RU",
+            rate: 1.9,
+            rateUnit: "mi",
+          },
+        },
+        dimensions: {
+          length: 147,
+          width: 52,
+          height: 70,
+          isLong: true,
+          payload: 2100,
+        },
+        status: "available",
+        availability: {
+          location: "La Mirada, CA, 90638, US",
+          datetime: "04/24/2025 11:00 EDT",
+        },
+        lastKnown: {
+          city: "La Mirada",
+          state: "CA",
+          zip: "90638",
+          country: "US",
+          datetime: "04/24/2025 10:02 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+      {
+        id: "040",
+        contact: {
+          role: "(o/d) ",
+          name: "Oleg Vyaznevich",
+          company: "Turtle Express LLC",
+          phone: "+1 (864) 345-4704",
+        },
+        info: {
+          type: "Straight truck",
+          features: ["air ride", "curtains"],
+          flags: {
+            language: "RU",
+            rate: 1.8,
+            rateUnit: "mi",
+          },
+        },
+        dimensions: {
+          length: 244,
+          width: 94,
+          height: 96,
+          payload: 6500,
+        },
+        status: "available",
+        availability: {
+          needsUpdate: true,
+        },
+        lastKnown: {
+          city: "Orange",
+          state: "TX",
+          zip: "77630",
+          country: "US",
+          datetime: "04/01/2025 09:23 EDT",
+        },
+        actions: {
+          canReserve: true,
+        },
+      },
+    ],
+  );
+
   // Calculate active filter count
   const getActiveFilterCount = () => {
     const statusCount = statusFilterGroup.options.filter(
-      (o) => o.checked,
+      (o: any) => o.checked,
     ).length;
-    const typeCount = typeFilterGroup.options.filter((o) => o.checked).length;
+    const typeCount = typeFilterGroup.options.filter(
+      (o: any) => o.checked,
+    ).length;
 
     return statusCount + typeCount;
   };
@@ -188,14 +558,14 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
     if (groupId === "status") {
       setStatusFilterGroup({
         ...statusFilterGroup,
-        options: statusFilterGroup.options.map((option) =>
+        options: statusFilterGroup.options.map((option: any) =>
           option.id === optionId ? { ...option, checked } : option,
         ),
       });
     } else if (groupId === "type") {
       setTypeFilterGroup({
         ...typeFilterGroup,
-        options: typeFilterGroup.options.map((option) =>
+        options: typeFilterGroup.options.map((option: any) =>
           option.id === optionId ? { ...option, checked } : option,
         ),
       });
@@ -206,24 +576,30 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
   const handleClearFilters = () => {
     setStatusFilterGroup({
       ...statusFilterGroup,
-      options: statusFilterGroup.options.map((option) => ({
+      options: statusFilterGroup.options.map((option: any) => ({
         ...option,
         checked: false,
       })),
     });
     setTypeFilterGroup({
       ...typeFilterGroup,
-      options: typeFilterGroup.options.map((option) => ({
+      options: typeFilterGroup.options.map((option: any) => ({
         ...option,
         checked: false,
       })),
     });
     setSearchQuery("");
+    setAppliedFilters(null);
+  };
+
+  // Handle applying advanced filters
+  const handleApplyFilters = (filters: any) => {
+    setAppliedFilters(filters);
   };
 
   // Filter trucks based on all filters
   const filteredTrucks = trucks.filter((truck) => {
-    // Search query filter
+    // Basic search query filter
     const matchesSearch =
       searchQuery === "" ||
       truck.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -233,20 +609,63 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
 
     // Status filter
     const selectedStatuses = statusFilterGroup.options
-      .filter((o) => o.checked)
-      .map((o) => o.id);
+      .filter((o: any) => o.checked)
+      .map((o: any) => o.id);
     const matchesStatus =
       selectedStatuses.length === 0 || selectedStatuses.includes(truck.status);
 
     // Type filter
     const selectedTypes = typeFilterGroup.options
-      .filter((o) => o.checked)
-      .map((o) => o.id);
+      .filter((o: any) => o.checked)
+      .map((o: any) => o.id);
     const matchesType =
       selectedTypes.length === 0 ||
       selectedTypes.includes(truck.type.toLowerCase().replace(" ", "_"));
 
-    return matchesSearch && matchesStatus && matchesType;
+    // Advanced filters
+    let matchesAdvancedFilters = true;
+    if (appliedFilters) {
+      // Check truck number
+      if (
+        appliedFilters.truckNumber &&
+        !truck.id
+          .toLowerCase()
+          .includes(appliedFilters.truckNumber.toLowerCase())
+      ) {
+        matchesAdvancedFilters = false;
+      }
+
+      // Check location city
+      if (
+        appliedFilters.locationCity &&
+        !truck.location
+          .toLowerCase()
+          .includes(appliedFilters.locationCity.toLowerCase())
+      ) {
+        matchesAdvancedFilters = false;
+      }
+
+      // Check status
+      if (appliedFilters.status && appliedFilters.status !== truck.status) {
+        matchesAdvancedFilters = false;
+      }
+
+      // Check driver
+      if (
+        appliedFilters.driver &&
+        !truck.driver.name
+          .toLowerCase()
+          .includes(appliedFilters.driver.toLowerCase())
+      ) {
+        matchesAdvancedFilters = false;
+      }
+
+      // Additional filters can be added here as needed
+    }
+
+    return (
+      matchesSearch && matchesStatus && matchesType && matchesAdvancedFilters
+    );
   });
 
   // Handle adding a new truck
@@ -335,6 +754,19 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
     }
   };
 
+  // Handle Delta Express truck actions
+  const handleReserveTruck = (truckId: string) => {
+    console.log(`Reserve truck ${truckId}`);
+  };
+
+  const handleViewTruckLogs = (truckId: string) => {
+    console.log(`View logs for truck ${truckId}`);
+  };
+
+  const handleArchiveTruck = (truckId: string) => {
+    console.log(`Archive truck ${truckId}`);
+  };
+
   return (
     <Card className="w-full max-w-4xl bg-background">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -346,6 +778,14 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
         )}
       </CardHeader>
       <CardContent>
+        {/* Advanced Filter Panel */}
+        <TruckFilterPanel
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onApplyFilters={handleApplyFilters}
+          onResetFilters={handleClearFilters}
+        />
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="list" className="flex items-center gap-2">
@@ -377,15 +817,19 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              <TruckFilterPanel
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                filterGroups={[statusFilterGroup, typeFilterGroup]}
-                onFilterChange={handleFilterChange}
-                onClearFilters={handleClearFilters}
-                activeFilterCount={getActiveFilterCount()}
-              />
+              {/* Delta Express Style Truck Data Table */}
+              <div className="border rounded-md mb-8">
+                <TruckDataTable
+                  data={deltaExpressTrucks}
+                  onReserve={handleReserveTruck}
+                  onViewDetails={handleEditTruckDetails}
+                  onEdit={handleEditTruckDetails}
+                  onViewLogs={handleViewTruckLogs}
+                  onArchive={handleArchiveTruck}
+                />
+              </div>
 
+              {/* Original Truck Table */}
               <div className="border rounded-md">
                 <Table>
                   <TableHeader>
@@ -520,10 +964,9 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
               <div className="border rounded-md bg-slate-100 h-[400px] flex items-center justify-center">
                 <div className="text-center">
                   <Map className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">Interactive Map View</h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
-                    This area would display an interactive map showing all truck
-                    locations in real-time with filtering options.
+                  <h3 className="text-lg font-medium">Map View Coming Soon</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    This feature is currently under development.
                   </p>
                 </div>
               </div>
@@ -535,76 +978,48 @@ const TruckManagement: React.FC<TruckManagementProps> = ({ onClose }) => {
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Trucks Nearby</h3>
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter location or ZIP code"
-                    className="w-64"
-                  />
-                  <Button size="sm">
-                    <Search className="h-4 w-4 mr-2" /> Search
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" /> Filter
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <RefreshCw className="h-4 w-4 mr-2" /> Refresh
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border rounded-md bg-slate-100 h-[300px] flex items-center justify-center">
-                  <div className="text-center">
-                    <Navigation className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium">Proximity Map</h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2">
-                      Map showing trucks within specified radius
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border rounded-md">
-                  <div className="p-4 border-b font-medium">
-                    Nearest Available Trucks
-                  </div>
-                  <div className="divide-y">
-                    {filteredTrucks
-                      .filter((truck) => truck.status === "available")
-                      .slice(0, 4)
-                      .map((truck, index) => (
-                        <div key={truck.id} className="p-4 hover:bg-muted/50">
-                          <div className="flex justify-between">
-                            <div className="font-medium">{truck.id}</div>
-                            <Badge>
-                              {Math.floor(Math.random() * 20) + 1} miles away
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between mt-2">
-                            <div className="text-sm text-muted-foreground">
-                              {truck.type} • {truck.location}
-                            </div>
-                            <Button variant="outline" size="sm">
-                              Assign
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+              <div className="border rounded-md bg-slate-100 h-[400px] flex items-center justify-center">
+                <div className="text-center">
+                  <Navigation className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium">
+                    Nearby View Coming Soon
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    This feature is currently under development.
+                  </p>
                 </div>
               </div>
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Add Truck Dialog */}
+        {showAddTruckDialog && (
+          <AddTruckForm
+            onClose={() => setShowAddTruckDialog(false)}
+            onSubmit={handleAddTruck}
+          />
+        )}
+
+        {/* Truck Details Dialog */}
+        {showTruckDetailsDialog && selectedTruck && (
+          <TruckDetails
+            truck={selectedTruck}
+            onClose={() => setShowTruckDetailsDialog(false)}
+            onAssignLoad={handleAssignLoad}
+            onEdit={handleEditTruckDetails}
+          />
+        )}
       </CardContent>
-
-      {/* Add Truck Dialog */}
-      <AddTruckForm
-        open={showAddTruckDialog}
-        onOpenChange={setShowAddTruckDialog}
-        onSave={handleAddTruck}
-      />
-
-      {/* Truck Details Dialog */}
-      <TruckDetails
-        truck={selectedTruck}
-        open={showTruckDetailsDialog}
-        onOpenChange={setShowTruckDetailsDialog}
-        onAssignLoad={handleAssignLoad}
-        onEditDetails={handleEditTruckDetails}
-      />
     </Card>
   );
 };
