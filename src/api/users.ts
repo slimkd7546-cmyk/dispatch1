@@ -1,4 +1,17 @@
-import { supabase, handleSupabaseError } from "@/lib/supabase";
+import { db, auth } from "@/lib/firebase";
+import { deleteUser as deleteFirebaseUser } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 import { UserRole } from "./auth";
 
 export interface User {

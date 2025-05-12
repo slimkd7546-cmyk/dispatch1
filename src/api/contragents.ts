@@ -1,4 +1,17 @@
-import { supabase, handleSupabaseError } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 export type ContragentType = "carrier" | "customer" | "facility" | "factoring";
 export type ContragentStatus = "active" | "inactive" | "pending";

@@ -1,4 +1,20 @@
-import { supabase, handleSupabaseError } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  startAfter,
+  serverTimestamp,
+  Timestamp,
+} from "firebase/firestore";
 
 export interface Message {
   id: string;

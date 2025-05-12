@@ -1,4 +1,12 @@
-import { supabase, handleSupabaseError } from "@/lib/supabase";
+import { auth, db } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword as firebaseSignIn,
+  signOut as firebaseSignOut,
+  updateProfile,
+  User as FirebaseUser,
+} from "firebase/auth";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 export type UserRole =
   | "admin"
@@ -17,38 +25,46 @@ export interface AuthUser {
 }
 
 /**
+ * Handle Firebase errors
+ */
+const handleFirebaseError = (error: any) => {
+  console.error("Firebase error:", error);
+  return {
+    error: {
+      message: error.message || "An unknown error occurred",
+      code: error.code || "unknown",
+    },
+  };
+};
+
+/**
  * Sign in with email and password
  */
 export const signInWithEmail = async (email: string, password: string) => {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
+    const userCredential = await firebaseSignIn(auth, email, password);
+    const user = userCredential.user;
 
     // Fetch user profile data
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", data.user.id)
-      .single();
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists()) {
+      throw new Error("User profile not found");
+    }
 
-    if (userError) throw userError;
+    const userData = userDoc.data();
 
     return {
       user: {
-        id: data.user.id,
-        email: data.user.email!,
-        fullName: userData.full_name,
-        avatarUrl: userData.avatar_url,
+        id: user.uid,
+        email: user.email!,
+        fullName: userData.fullName,
+        avatarUrl: userData.avatarUrl,
         role: userData.role as UserRole,
       },
-      session: data.session,
+      session: { user: userCredential.user },
     };
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleFirebaseError(error);
   }
 };
 
@@ -63,37 +79,37 @@ export const signUpWithEmail = async (
 ) => {
   try {
     // Create auth user
-    const { data, error } = await supabase.auth.signUp({
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
       email,
       password,
+    );
+    const user = userCredential.user;
+
+    // Update profile with display name
+    await updateProfile(user, { displayName: fullName });
+
+    // Create profile in users collection
+    await setDoc(doc(db, "users", user.uid), {
+      id: user.uid,
+      email: email,
+      fullName: fullName,
+      role: role,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
-
-    if (error) throw error;
-    if (!data.user) throw new Error("User creation failed");
-
-    // Create profile in users table
-    const { error: profileError } = await supabase.from("users").insert([
-      {
-        id: data.user.id,
-        email: email,
-        full_name: fullName,
-        role: role,
-      },
-    ]);
-
-    if (profileError) throw profileError;
 
     return {
       user: {
-        id: data.user.id,
-        email: data.user.email!,
+        id: user.uid,
+        email: user.email!,
         fullName,
         role,
       },
-      session: data.session,
+      session: { user: userCredential.user },
     };
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleFirebaseError(error);
   }
 };
 
@@ -102,11 +118,10 @@ export const signUpWithEmail = async (
  */
 export const signOut = async () => {
   try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await firebaseSignOut(auth);
     return { success: true };
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleFirebaseError(error);
   }
 };
 
@@ -118,25 +133,22 @@ export const getCurrentUser = async (): Promise<{
   error?: any;
 }> => {
   try {
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-    if (sessionError) throw sessionError;
-    if (!sessionData.session) return { user: null };
+    const currentUser = auth.currentUser;
+    if (!currentUser) return { user: null };
 
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", sessionData.session.user.id)
-      .single();
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    if (!userDoc.exists()) {
+      return { user: null };
+    }
 
-    if (userError) throw userError;
+    const userData = userDoc.data();
 
     return {
       user: {
-        id: sessionData.session.user.id,
-        email: sessionData.session.user.email!,
-        fullName: userData.full_name,
-        avatarUrl: userData.avatar_url,
+        id: currentUser.uid,
+        email: currentUser.email!,
+        fullName: userData.fullName,
+        avatarUrl: userData.avatarUrl,
         role: userData.role as UserRole,
       },
     };
@@ -157,31 +169,36 @@ export const updateUserProfile = async (
   },
 ) => {
   try {
-    const updateData: any = {};
-    if (updates.fullName !== undefined) updateData.full_name = updates.fullName;
+    const updateData: any = {
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (updates.fullName !== undefined) updateData.fullName = updates.fullName;
     if (updates.avatarUrl !== undefined)
-      updateData.avatar_url = updates.avatarUrl;
+      updateData.avatarUrl = updates.avatarUrl;
     if (updates.role !== undefined) updateData.role = updates.role;
 
-    const { data, error } = await supabase
-      .from("users")
-      .update(updateData)
-      .eq("id", userId)
-      .select()
-      .single();
+    // Update the user document
+    await updateDoc(doc(db, "users", userId), updateData);
 
-    if (error) throw error;
+    // Get the updated user data
+    const userDoc = await getDoc(doc(db, "users", userId));
+    if (!userDoc.exists()) {
+      throw new Error("User not found");
+    }
+
+    const userData = userDoc.data();
 
     return {
       user: {
-        id: data.id,
-        email: data.email,
-        fullName: data.full_name,
-        avatarUrl: data.avatar_url,
-        role: data.role as UserRole,
+        id: userId,
+        email: userData.email,
+        fullName: userData.fullName,
+        avatarUrl: userData.avatarUrl,
+        role: userData.role as UserRole,
       },
     };
   } catch (error) {
-    return handleSupabaseError(error);
+    return handleFirebaseError(error);
   }
 };

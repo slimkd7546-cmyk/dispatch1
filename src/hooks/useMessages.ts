@@ -10,7 +10,14 @@ import {
   markMessagesAsRead,
   getUnreadMessageCount,
 } from "@/api/messages";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 export function useMessages(userId: string) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -66,60 +73,49 @@ export function useMessages(userId: string) {
 
   // Set up real-time subscription for new messages
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !currentConversation) return;
 
-    const subscription = supabase
-      .channel("messages-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload) => {
-          const newMessage = payload.new as any;
+    // Listen for new messages in the current conversation
+    const messagesQuery = query(
+      collection(db, "messages"),
+      where("conversationId", "==", currentConversation.id),
+      orderBy("createdAt", "desc"),
+    );
 
-          // If the message is for the current conversation, add it to the messages list
-          if (
-            currentConversation &&
-            newMessage.conversation_id === currentConversation.id
-          ) {
-            setMessages((prev) => [
-              {
-                id: newMessage.id,
-                senderId: newMessage.sender_id,
-                recipientId: newMessage.recipient_id,
-                conversationId: newMessage.conversation_id,
-                content: newMessage.content,
-                read: newMessage.read,
-                createdAt: newMessage.created_at,
-                updatedAt: newMessage.updated_at,
-              },
-              ...prev,
-            ]);
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const newMessage = change.doc.data() as Message;
+
+          // Check if this is a new message (not in our current list)
+          const isNewMessage = !messages.some((m) => m.id === newMessage.id);
+
+          if (isNewMessage) {
+            setMessages((prev) => [newMessage, ...prev]);
 
             // If the message is not from the current user, mark it as read
-            if (newMessage.sender_id !== userId) {
-              markMessagesAsRead(newMessage.conversation_id, userId);
+            if (newMessage.senderId !== userId) {
+              markMessagesAsRead(currentConversation.id, userId);
             }
           }
+        }
+      });
 
-          // Update unread count if the message is not from the current user
-          if (newMessage.sender_id !== userId) {
-            loadUnreadCount();
-          }
-
-          // Refresh conversations to update last message
-          loadConversations();
-        },
-      )
-      .subscribe();
+      // Update unread count and refresh conversations
+      loadUnreadCount();
+      loadConversations();
+    });
 
     return () => {
-      subscription.unsubscribe();
+      unsubscribe();
     };
-  }, [userId, currentConversation, loadConversations, loadUnreadCount]);
+  }, [
+    userId,
+    currentConversation,
+    messages,
+    loadConversations,
+    loadUnreadCount,
+  ]);
 
   // Load messages for a conversation
   const loadMessages = useCallback(

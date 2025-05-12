@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { AuthUser, getCurrentUser, signInWithEmail, signOut } from "@/api/auth";
 
 export function useAuth() {
@@ -26,19 +27,17 @@ export function useAuth() {
     loadUser();
 
     // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-          const { user } = await getCurrentUser();
-          setUser(user);
-        } else if (event === "SIGNED_OUT") {
-          setUser(null);
-        }
-      },
-    );
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const { user } = await getCurrentUser();
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
 
     return () => {
-      authListener?.subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 
